@@ -6,36 +6,55 @@ public class BallController : MonoBehaviour
     public float speedIncrease = 0.5f;
     public float maxSpeed = 20f;
 
-    private float currentSpeed;
     private Rigidbody2D rb;
+    private float currentSpeed;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        currentSpeed = startSpeed;
-
-        LaunchBall();
+        ResetBall();
     }
 
-    void LaunchBall()
+    public void ResetBall()
     {
-        Vector2 direction = new Vector2(
-            Random.Range(0, 2) == 0 ? -1 : 1,
-            Random.Range(-0.5f, 0.5f)
-        ).normalized;
+        transform.position = Vector2.zero;
 
-        rb.linearVelocity = direction * currentSpeed;
+        currentSpeed = startSpeed;
+
+        Launch();
+    }
+
+    void Launch()
+    {
+        float x = Random.value < 0.5f ? -1f : 1f;
+        float y = Random.Range(-0.7f, 0.7f);
+
+        Vector2 dir = new Vector2(x, y).normalized;
+
+        rb.linearVelocity = dir * currentSpeed;
     }
 
     void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Paddle"))
-        {
-            currentSpeed = Mathf.Min(currentSpeed + speedIncrease, maxSpeed);
+        if (!collision.gameObject.CompareTag("Paddle"))
+            return;
 
-            Vector2 direction = rb.linearVelocity.normalized;
+        currentSpeed = Mathf.Min(currentSpeed + speedIncrease, maxSpeed);
 
-            rb.linearVelocity = direction * currentSpeed;
-        }
+        float paddleY = collision.transform.position.y;
+        float hitY = transform.position.y;
+
+        float offset = (hitY - paddleY) / 1f;
+
+        Vector2 dir;
+
+        if (transform.position.x < 0)
+            dir = new Vector2(1f, offset);
+        else
+            dir = new Vector2(-1f, offset);
+
+        dir.Normalize();
+
+        rb.linearVelocity = dir * currentSpeed;
     }
 }
