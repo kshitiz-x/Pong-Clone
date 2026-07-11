@@ -20,6 +20,8 @@ public class BallController : MonoBehaviour
             Random.Range(-0.5f, 0.5f)
         );
 
-        rb.linearVelocity = direction.normalized * speed;
+        direction.Normalize();
+
+        rb.linearVelocity = direction * speed;
     }
 }
