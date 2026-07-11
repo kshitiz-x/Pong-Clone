@@ -57,4 +57,8 @@ public class BallController : MonoBehaviour
 
         rb.linearVelocity = dir * currentSpeed;
     }
+public void StopBall()
+{
+    rb.linearVelocity = Vector2.zero;
+}
 }
