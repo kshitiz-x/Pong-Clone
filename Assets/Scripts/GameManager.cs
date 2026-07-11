@@ -5,27 +5,47 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
+    [Header("Audio")]
+    public AudioSource musicSource;
+    public AudioClip bgMusic;
+
+    public AudioSource winSource;
+    public AudioClip winSound;
+
+    [Header("UI")]
     public TextMeshProUGUI leftScoreText;
     public TextMeshProUGUI rightScoreText;
     public TextMeshProUGUI winText;
     public TextMeshProUGUI countdownText;
 
+    [Header("Game")]
     public BallController ball;
 
     private int leftScore = 0;
     private int rightScore = 0;
-
     private bool gameOver = false;
 
-    void Start()
-    {
-        UpdateScore();
+   void Start()
+{
+    UpdateScore();
 
+    if (winText != null)
         winText.gameObject.SetActive(false);
+
+    if (countdownText != null)
         countdownText.gameObject.SetActive(false);
 
-        StartCoroutine(GameStartCountdown());
+    // Start background music
+    if (musicSource != null && bgMusic != null)
+    {
+        musicSource.clip = bgMusic;
+        musicSource.loop = true;
+        musicSource.Play();
     }
+
+    // Start countdown
+    StartCoroutine(StartRound());
+}
 
     void Update()
     {
@@ -35,7 +55,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    IEnumerator GameStartCountdown()
+    IEnumerator StartRound()
     {
         countdownText.gameObject.SetActive(true);
 
@@ -53,7 +73,8 @@ public class GameManager : MonoBehaviour
 
         countdownText.gameObject.SetActive(false);
 
-        ball.ResetBall();
+        if (ball != null)
+            ball.ResetBall();
     }
 
     public void LeftPlayerScored()
@@ -63,11 +84,7 @@ public class GameManager : MonoBehaviour
 
         leftScore++;
         UpdateScore();
-
         CheckWinner();
-
-        if (!gameOver)
-            ball.ResetBall();
     }
 
     public void RightPlayerScored()
@@ -77,17 +94,16 @@ public class GameManager : MonoBehaviour
 
         rightScore++;
         UpdateScore();
-
         CheckWinner();
-
-        if (!gameOver)
-            ball.ResetBall();
     }
 
     void UpdateScore()
     {
-        leftScoreText.text = leftScore.ToString();
-        rightScoreText.text = rightScore.ToString();
+        if (leftScoreText != null)
+            leftScoreText.text = leftScore.ToString();
+
+        if (rightScoreText != null)
+            rightScoreText.text = rightScore.ToString();
     }
 
     void CheckWinner()
@@ -106,9 +122,21 @@ public class GameManager : MonoBehaviour
     {
         gameOver = true;
 
-        ball.StopBall();
+        if (ball != null)
+            ball.StopBall();
 
-        winText.gameObject.SetActive(true);
-        winText.text = message + "\nPress R to Restart";
+        if (winText != null)
+        {
+            winText.gameObject.SetActive(true);
+            winText.text = message + "\nPress R to Restart";
+        }
+
+        // Stop background music
+        if (musicSource != null)
+            musicSource.Stop();
+
+        // Play win sound
+        if (winSource != null && winSound != null)
+            winSource.PlayOneShot(winSound);
     }
 }
