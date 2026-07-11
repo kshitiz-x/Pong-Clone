@@ -15,8 +15,5 @@ public class Goal : MonoBehaviour
             gameManager.RightPlayerScored();
         else
             gameManager.LeftPlayerScored();
-
-        BallController ball = collision.GetComponent<BallController>();
-        ball.ResetBall();
     }
 }

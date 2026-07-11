@@ -12,7 +12,8 @@ public class BallController : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        ResetBall();
+
+        rb.linearVelocity = Vector2.zero;
     }
 
     public void ResetBall()
@@ -44,7 +45,7 @@ public class BallController : MonoBehaviour
         float paddleY = collision.transform.position.y;
         float hitY = transform.position.y;
 
-        float offset = (hitY - paddleY) / 1f;
+        float offset = (hitY - paddleY);
 
         Vector2 dir;
 
@@ -57,8 +58,9 @@ public class BallController : MonoBehaviour
 
         rb.linearVelocity = dir * currentSpeed;
     }
-public void StopBall()
-{
-    rb.linearVelocity = Vector2.zero;
-}
+
+    public void StopBall()
+    {
+        rb.linearVelocity = Vector2.zero;
+    }
 }

@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -7,6 +8,9 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI leftScoreText;
     public TextMeshProUGUI rightScoreText;
     public TextMeshProUGUI winText;
+    public TextMeshProUGUI countdownText;
+
+    public BallController ball;
 
     private int leftScore = 0;
     private int rightScore = 0;
@@ -17,17 +21,39 @@ public class GameManager : MonoBehaviour
     {
         UpdateScore();
 
-        if (winText != null)
-            winText.gameObject.SetActive(false);
+        winText.gameObject.SetActive(false);
+        countdownText.gameObject.SetActive(false);
+
+        StartCoroutine(GameStartCountdown());
     }
 
     void Update()
     {
         if (gameOver && Input.GetKeyDown(KeyCode.R))
         {
-            Debug.Log("Restarting Game...");
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
+    }
+
+    IEnumerator GameStartCountdown()
+    {
+        countdownText.gameObject.SetActive(true);
+
+        countdownText.text = "3";
+        yield return new WaitForSeconds(1f);
+
+        countdownText.text = "2";
+        yield return new WaitForSeconds(1f);
+
+        countdownText.text = "1";
+        yield return new WaitForSeconds(1f);
+
+        countdownText.text = "GO!";
+        yield return new WaitForSeconds(0.5f);
+
+        countdownText.gameObject.SetActive(false);
+
+        ball.ResetBall();
     }
 
     public void LeftPlayerScored()
@@ -36,11 +62,12 @@ public class GameManager : MonoBehaviour
             return;
 
         leftScore++;
-
-        Debug.Log("Left Score = " + leftScore);
-
         UpdateScore();
+
         CheckWinner();
+
+        if (!gameOver)
+            ball.ResetBall();
     }
 
     public void RightPlayerScored()
@@ -49,11 +76,12 @@ public class GameManager : MonoBehaviour
             return;
 
         rightScore++;
-
-        Debug.Log("Right Score = " + rightScore);
-
         UpdateScore();
+
         CheckWinner();
+
+        if (!gameOver)
+            ball.ResetBall();
     }
 
     void UpdateScore()
@@ -64,42 +92,23 @@ public class GameManager : MonoBehaviour
 
     void CheckWinner()
     {
-        Debug.Log($"Checking Winner: {leftScore} - {rightScore}");
-
         if (leftScore >= 10)
         {
-            Debug.Log("PLAYER 1 WINS");
             EndGame("Player 1 Wins!");
         }
         else if (rightScore >= 10)
         {
-            Debug.Log("PLAYER 2 WINS");
             EndGame("Player 2 Wins!");
         }
     }
 
     void EndGame(string message)
     {
-        Debug.Log("EndGame() Called");
-
         gameOver = true;
 
-        if (winText != null)
-        {
-            winText.gameObject.SetActive(true);
-            winText.text = message + "\nPress R to Restart";
-        }
+        ball.StopBall();
 
-        BallController ball = FindFirstObjectByType<BallController>();
-
-        if (ball != null)
-        {
-            ball.StopBall();
-            Debug.Log("Ball Stopped");
-        }
-        else
-        {
-            Debug.Log("BallController NOT FOUND");
-        }
+        winText.gameObject.SetActive(true);
+        winText.text = message + "\nPress R to Restart";
     }
 }
